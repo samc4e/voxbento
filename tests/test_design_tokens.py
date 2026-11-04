@@ -45,32 +45,53 @@ def test_page_links_tokens_before_other_stylesheets(source):
     assert LOCAL_STYLESHEET.findall(source)[0] == "css/tokens.css"
 
 
-# Stylesheets migrated to the shared tokens: their :root only points at tokens or at each other.
-ADOPTED_STYLESHEETS = ["admin.css"]
+# Stylesheets migrated to the shared tokens (#243). Their own custom properties must take
+# their colours from tokens.css rather than restating them, so the palette has one source.
+ADOPTED_STYLESHEETS = ["admin.css", "interpreter.css", "auth.css", "account-area.css"]
+COLOUR_LITERAL = re.compile(r"#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(", re.I)
 
 
 @pytest.mark.parametrize("stylesheet", ADOPTED_STYLESHEETS)
-def test_adopted_stylesheet_root_only_references_tokens(stylesheet):
+def test_adopted_stylesheet_variables_take_their_colours_from_tokens(stylesheet):
     css = re.sub(r"/\*.*?\*/", "", (TOKENS.parent / stylesheet).read_text(encoding="utf-8"), flags=re.S)
-    roots = re.findall(r"(?<![\w-]):root\s*{([^{}]*)}", css)
-    assert len(roots) == 1, f"{stylesheet} must have exactly one :root block"
-    declarations = {
-        name.strip(): value.strip() for name, _, value in (d.partition(":") for d in roots[0].split(";") if d.strip())
-    }
+    # Declaration position only: the lookbehind keeps class names like .btn--danger:hover out.
+    declarations = {name: value.strip() for name, value in re.findall(r"(?<![\w-])(--[\w-]+)\s*:\s*([^;{}]+)", css)}
+    assert declarations, f"{stylesheet} defines no custom properties"
+    tokens = _token_values()
     refs = {}
     for name, value in declarations.items():
-        ref = re.fullmatch(r"var\((--[\w-]+)\)", value)
-        assert ref, f"{stylesheet}: {name} must be var(--vb-*) or an alias of another :root variable, not {value}"
-        refs[name] = ref.group(1)
+        if not COLOUR_LITERAL.search(value):
+            # Spacing, radii and the like may stay literal; only colours must come from tokens.
+            refs[name] = re.findall(r"var\(\s*(--[\w-]+)", value)
+            continue
+        assert False, f"{stylesheet}: {name} hard-codes a colour ({value}) instead of using a --vb-* token"
+    # Follow each reference: every name must resolve to a shared token or a sibling, without a cycle.
+    for name, targets in refs.items():
+        for target in targets:
+            seen, cursor = {name}, target
+            while cursor in refs:
+                assert cursor not in seen, f"{stylesheet}: {name} is part of a variable cycle"
+                seen.add(cursor)
+                nxt = refs[cursor]
+                if not nxt:
+                    break
+                cursor = nxt[0]
+            assert cursor in tokens or cursor in refs, f"{stylesheet}: {name} references undefined {cursor}"
+
+
+def _stylesheets():
+    for stylesheet in sorted(TOKENS.parent.glob("*.css")):
+        if stylesheet != TOKENS:
+            yield pytest.param(stylesheet, id=stylesheet.name)
+
+
+@pytest.mark.parametrize("stylesheet", list(_stylesheets()))
+def test_every_shared_token_reference_resolves(stylesheet):
+    """A var(--vb-*) that no longer exists silently drops the whole declaration."""
+    css = re.sub(r"/\*.*?\*/", "", stylesheet.read_text(encoding="utf-8"), flags=re.S)
     tokens = _token_values()
-    # Follow each alias chain: it must end at a shared token, without looping back on itself.
-    for name, target in refs.items():
-        seen = {name}
-        while target in refs:
-            assert target not in seen, f"{stylesheet}: {name} is part of an alias cycle"
-            seen.add(target)
-            target = refs[target]
-        assert target in tokens, f"{stylesheet}: {name} resolves to undefined {target}"
+    for name in sorted(set(re.findall(r"var\(\s*(--vb-[\w-]+)", css))):
+        assert name in tokens, f"{stylesheet.name} uses {name}, which tokens.css does not define"
 
 
 def _contrast_on_white(hex_color: str) -> float:
@@ -98,12 +119,39 @@ def test_text_token_meets_wcag_aa_on_white(token):
     assert _contrast_on_white(_token_values()[token].strip()) >= 4.5
 
 
+def _tint_over_white(hex_color: str, percent: int) -> str:
+    """color-mix(in srgb, <hex_color> <percent>%, white), the way the badge backgrounds are built."""
+    mix = percent / 100
+    return "#" + "".join(f"{round(mix * int(hex_color[i : i + 2], 16) + (1 - mix) * 255):02x}" for i in (1, 3, 5))
+
+
+def _contrast_on_tint(text: str, tint: str) -> float:
+    # Both ratios are measured against white, so text-on-tint = text-on-white / tint-on-white.
+    return _contrast_on_white(text) / _contrast_on_white(tint)
+
+
 @pytest.mark.parametrize("status", ["danger", "success", "warning"])
 def test_status_text_meets_wcag_aa_on_its_badge_tint(status):
     tokens = _token_values()
     fill = tokens[f"--vb-color-{status}"].strip()
     assert re.fullmatch(r"#[0-9a-fA-F]{6}", fill), f"--vb-color-{status} must be opaque #rrggbb, got {fill}"
     # Badges tint their background with 10% of the fill colour over white (color-mix in srgb).
-    tint = "#" + "".join(f"{round(0.1 * int(fill[i : i + 2], 16) + 0.9 * 255):02x}" for i in (1, 3, 5))
-    # Both ratios are measured against white, so text-on-tint = text-on-white / tint-on-white.
-    assert _contrast_on_white(tokens[f"--vb-color-{status}-text"].strip()) / _contrast_on_white(tint) >= 4.5
+    assert _contrast_on_tint(tokens[f"--vb-color-{status}-text"].strip(), _tint_over_white(fill, 10)) >= 4.5
+
+
+@pytest.mark.parametrize("stylesheet", ADOPTED_STYLESHEETS)
+def test_status_tinted_backgrounds_stay_readable(stylesheet):
+    """Status text sits on these, so a stronger tint has to keep its own text above AA."""
+    css = re.sub(r"/\*.*?\*/", "", (TOKENS.parent / stylesheet).read_text(encoding="utf-8"), flags=re.S)
+    # Backgrounds only: a border tint sits beside the text, not behind it, so it may be stronger.
+    declaration = re.compile(r"(?:background(?:-color)?|--[\w-]*-bg)\s*:\s*([^;{}]+)")
+    # Every surface these mix over is white or near-white, so measure against white.
+    mixed = re.compile(r"color-mix\(\s*in srgb,\s*var\(\s*--vb-color-(danger|success|warning)\s*\)\s*(\d+)%")
+    tokens = _token_values()
+    for value in declaration.findall(css):
+        for status, percent in mixed.findall(value):
+            tint = _tint_over_white(tokens[f"--vb-color-{status}"].strip(), int(percent))
+            ratio = _contrast_on_tint(tokens[f"--vb-color-{status}-text"].strip(), tint)
+            assert ratio >= 4.5, (
+                f"{stylesheet}: --vb-color-{status}-text on a {percent}% {status} tint ({tint}) is only {ratio:.2f}:1"
+            )

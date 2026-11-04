@@ -10,16 +10,16 @@
 
 /* Brutalist aesthetics inherited from auth.css for landing page */
 .brutal-card {
-  background: #ffffff;
-  border: 3px solid #0d0f10;
+  background: var(--vb-color-surface);
+  border: 3px solid var(--vb-color-ink);
   border-radius: 8px;
-  box-shadow: 8px 8px 0px #0d0f10;
+  box-shadow: 8px 8px 0px var(--vb-color-ink);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .brutal-card:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 10px 10px 0px #0d0f10;
+  box-shadow: 10px 10px 0px var(--vb-color-ink);
 }
 
 .brutal-btn {
@@ -32,10 +32,10 @@
   letter-spacing: 0.5px;
   padding: 12px 24px;
   border-radius: 8px;
-  border: 3px solid #0d0f10;
-  background: #ffffff;
-  color: #0d0f10;
-  box-shadow: 4px 4px 0px #0d0f10;
+  border: 3px solid var(--vb-color-ink);
+  background: var(--vb-color-surface);
+  color: var(--vb-color-ink);
+  box-shadow: 4px 4px 0px var(--vb-color-ink);
   cursor: pointer;
   user-select: none;
   text-align: center;
@@ -45,16 +45,16 @@
 
 .brutal-btn:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #0d0f10;
+  box-shadow: 6px 6px 0px var(--vb-color-ink);
 }
 
 .brutal-btn:active {
   transform: translate(2px, 2px);
-  box-shadow: 0 0 0 #0d0f10;
+  box-shadow: 0 0 0 var(--vb-color-ink);
 }
 
 .brutal-btn:focus-visible {
-  outline: 3px solid #3b82f6;
+  outline: 3px solid var(--vb-color-primary);
   outline-offset: 2px;
 }
 
@@ -69,34 +69,33 @@
   border-radius: 8px;
   border-width: 3px;
   border-style: solid;
-  border-color: #0d0f10;
+  border-color: var(--vb-color-ink);
 }
 
 .brutal-btn-nav:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #0d0f10;
+  box-shadow: 6px 6px 0px var(--vb-color-ink);
 }
 
 .brutal-btn-nav:active {
   transform: translate(2px, 2px) !important;
-  box-shadow: 0 0 0 #0d0f10 !important;
+  box-shadow: 0 0 0 var(--vb-color-ink) !important;
 }
 
 /* ── Primary solid (blue) ── */
 .brutal-btn-primary {
-  background: #3b82f6;
-  /* solid blue */
+  background: var(--vb-color-primary);
   color: #ffffff;
 }
 
 .brutal-btn-primary:hover {
-  background: #2563eb;
+  background: var(--vb-color-primary-hover);
 }
 
 /* ── Outline white ── */
 .brutal-btn-outline {
-  background: #ffffff;
-  color: #0d0f10;
+  background: var(--vb-color-surface);
+  color: var(--vb-color-ink);
 }
 
 .brutal-btn-outline:hover {
@@ -108,11 +107,11 @@
 }
 
 .brutal-border {
-  border: 3px solid #0d0f10;
+  border: 3px solid var(--vb-color-ink);
 }
 
 .brutal-shadow {
-  box-shadow: 8px 8px 0px #0d0f10;
+  box-shadow: 8px 8px 0px var(--vb-color-ink);
 }
 
 /* Animated Flip Card (Uiverse style adapted for Brutalism) */
@@ -128,8 +127,8 @@
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 700ms;
-  box-shadow: 6px 6px 0px #0d0f10;
-  border: 3px solid #0d0f10;
+  box-shadow: 6px 6px 0px var(--vb-color-ink);
+  border: 3px solid var(--vb-color-ink);
   border-radius: 8px;
   position: relative;
   cursor: pointer;
@@ -137,7 +136,7 @@
 
 .solution-card-front,
 .solution-card-back {
-  background-color: #0d0f10;
+  background-color: var(--vb-color-ink);
   position: absolute;
   width: 100%;
   height: 100%;
@@ -160,7 +159,7 @@
   display: block;
   width: 160px;
   height: 160%;
-  background: linear-gradient(90deg, transparent, #2563eb, #dc2626, #2563eb, transparent);
+  background: linear-gradient(90deg, transparent, var(--vb-color-primary), var(--vb-color-danger), var(--vb-color-primary), transparent);
   animation: rotation_481 5000ms infinite linear;
 }
 
@@ -168,9 +167,9 @@
   position: absolute;
   width: calc(100% - 6px);
   height: calc(100% - 6px);
-  background-color: #eef2f6;
+  background-color: var(--vb-color-bg);
   border-radius: 5px;
-  color: #0d0f10;
+  color: var(--vb-color-ink);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -214,27 +213,27 @@
 }
 
 .solution-card-front .badge {
-  background-color: rgba(13, 15, 16, 0.9);
+  background-color: color-mix(in srgb, var(--vb-color-ink) 90%, transparent);
   padding: 4px 12px;
   border-radius: 4px;
   backdrop-filter: blur(2px);
   width: fit-content;
   font-weight: 800;
-  border: 2px solid #0d0f10;
+  border: 2px solid var(--vb-color-ink);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: 2px 2px 0px #0d0f10;
+  box-shadow: 2px 2px 0px var(--vb-color-ink);
 }
 
 .solution-card-front .description {
   width: 100%;
   padding: 16px;
-  background-color: rgba(13, 15, 16, 0.85);
+  background-color: color-mix(in srgb, var(--vb-color-ink) 85%, transparent);
   backdrop-filter: blur(5px);
   border-radius: 4px;
-  border: 2px solid #0d0f10;
-  box-shadow: 4px 4px 0px #0d0f10;
+  border: 2px solid var(--vb-color-ink);
+  box-shadow: 4px 4px 0px var(--vb-color-ink);
 }
 
 .solution-card-front .title {
@@ -282,7 +281,7 @@
 }
 
 .circle-1 {
-  background-color: #2563eb;
+  background-color: var(--vb-color-primary);
   left: 10%;
   top: 10%;
   width: 120px;
@@ -291,7 +290,7 @@
 }
 
 .circle-2 {
-  background-color: #dc2626;
+  background-color: var(--vb-color-danger);
   right: -20px;
   bottom: 10%;
   width: 100px;
@@ -332,11 +331,11 @@
   display: inline-block;
   width: 100%;
   height: 100%;
-  background: #2563eb;
+  background: var(--vb-color-primary);
   border-radius: 9999px;
   box-sizing: border-box;
-  box-shadow: 2px 2px 0px rgba(13, 15, 16, 0.5);
-  border: 2px solid #0d0f10;
+  box-shadow: 2px 2px 0px color-mix(in srgb, var(--vb-color-ink) 50%, transparent);
+  border: 2px solid var(--vb-color-ink);
 }
 
 .toggle-cont .toggle-label .cont-label-play {
@@ -345,14 +344,14 @@
   left: 2px;
   height: 20px;
   width: 20px;
-  background: #ffffff;
+  background: var(--vb-color-surface);
   border-radius: 9999px;
   transition: all 0.4s cubic-bezier(1, 0, 0, 1);
   box-shadow: inset 0px -1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .toggle-cont .toggle-input:checked+.toggle-label .cont-label-play {
-  background: #0d0f10;
+  background: var(--vb-color-ink);
   transform: translateX(28px);
 }
 
@@ -364,7 +363,7 @@
   display: inline-block;
   width: 10px;
   height: 10px;
-  background: #0d0f10;
+  background: var(--vb-color-ink);
   border-radius: 1px;
   clip-path: polygon(25% 0, 75% 50%, 25% 100%, 25% 51%);
   transition: all 0.4s cubic-bezier(1, 0, 0, 1);
@@ -374,7 +373,7 @@
   width: 8px;
   height: 8px;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  background: #ffffff;
+  background: var(--vb-color-surface);
 }
 
 /* Demo waveform bars (home.html demo section). Per-bar height and timing

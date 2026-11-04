@@ -23,6 +23,10 @@
   --vb-color-text-secondary: #5b6577;
   --vb-color-muted: #6b7484;
 
+  /* The hard black the public pages (sign-in, register, landing) draw their borders
+     and offset shadows in. A flat near-black, not the slightly blue --vb-color-text. */
+  --vb-color-ink: #0d0f10;
+
   /* Status. Danger, success, warning, live and offline are for fills, dots and badges.
      Status text uses the *-text colours, which stay at 4.5:1 or more on white and on a
      10% tint of their fill colour. */

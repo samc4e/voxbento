@@ -3,22 +3,23 @@
    to .account-area so they don't override interpreter.css's :root. */
 
 body.account-area {
-  --aa-bg: #eef1f7;
-  --aa-surface: #ffffff;
-  --aa-surface-2: #f6f8fb;
-  --aa-border: #e2e7f0;
-  --aa-border-strong: #d0d7e6;
-  --aa-text: #101828;
-  --aa-text-secondary: #475467;
-  --aa-primary: #1d4ed8;
-  --aa-primary-hover: #1e40af;
-  --aa-focus: rgba(29, 78, 216, 0.16);
-  --aa-danger: #b42318;
-  --aa-success-bg: #ecfdf3;
-  --aa-success-border: #a6f4c5;
-  --aa-success-text: #05603a;
-  --aa-warning-bg: #fef3c7;
-  --aa-warning-text: #92400e;
+  /* Values come from the shared tokens in tokens.css (#243), linked before this file. */
+  --aa-bg: var(--vb-color-bg);
+  --aa-surface: var(--vb-color-surface);
+  --aa-surface-2: var(--vb-color-surface-2);
+  --aa-border: var(--vb-color-border);
+  --aa-border-strong: var(--vb-color-border-strong);
+  --aa-text: var(--vb-color-text);
+  --aa-text-secondary: var(--vb-color-text-secondary);
+  --aa-primary: var(--vb-color-primary);
+  --aa-primary-hover: var(--vb-color-primary-hover);
+  --aa-focus: color-mix(in srgb, var(--vb-color-primary) 16%, transparent);
+  --aa-danger: var(--vb-color-danger-text);
+  --aa-success-bg: color-mix(in srgb, var(--vb-color-success) 10%, var(--vb-color-surface));
+  --aa-success-border: color-mix(in srgb, var(--vb-color-success) 35%, var(--vb-color-surface));
+  --aa-success-text: var(--vb-color-success-text);
+  --aa-warning-bg: color-mix(in srgb, var(--vb-color-warning) 10%, var(--vb-color-surface));
+  --aa-warning-text: var(--vb-color-warning-text);
   background: var(--aa-bg);
 }
 
@@ -28,7 +29,8 @@ body.account-area {
 
 /* Breadcrumb */
 .aa-breadcrumb { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.875rem; color: var(--aa-text-secondary); margin-bottom: 20px; }
-.aa-breadcrumb a { color: var(--aa-primary); text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
+/* The darker shade: link text sits on the grey page background, where the brand blue is only 4.6:1. */
+.aa-breadcrumb a { color: var(--aa-primary-hover); text-decoration: underline; text-underline-offset: 2px; font-weight: 500; }
 .aa-breadcrumb [aria-current="page"] { color: var(--aa-text); }
 
 /* Page heading */
@@ -38,7 +40,10 @@ body.account-area {
 /* Card */
 .aa-card { background: var(--aa-surface); border: 1px solid var(--aa-border); border-radius: 12px; }
 .aa-card--padded { padding: 24px; }
-.aa-card--highlight { border-color: #93b4f5; box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.06); }
+.aa-card--highlight {
+  border-color: color-mix(in srgb, var(--vb-color-primary) 40%, var(--aa-surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--vb-color-primary) 6%, transparent);
+}
 .aa-card-head { padding: 16px 24px; border-bottom: 1px solid var(--aa-border); }
 .aa-card-title { font-size: 1.1rem; font-weight: 700; color: var(--aa-text); margin: 0; }
 .aa-card-body { padding: 20px 24px; }
@@ -60,7 +65,7 @@ body.account-area {
   padding: 11px 12px;
   min-height: 44px;
 }
-.aa-input::placeholder { color: #667085; }
+.aa-input::placeholder { color: var(--vb-color-muted); }
 .aa-input:focus { outline: none; border-color: var(--aa-primary); box-shadow: 0 0 0 3px var(--aa-focus); }
 .aa-input[readonly] { background: var(--aa-surface-2); color: var(--aa-text-secondary); }
 .aa-input[aria-invalid="true"] { border-color: var(--aa-danger); }
@@ -149,11 +154,19 @@ textarea.aa-input { min-height: 96px; resize: vertical; }
 .aa-error[hidden] { display: none; }
 
 .aa-btn--danger { background: var(--aa-danger); border-color: var(--aa-danger); color: #fff; }
-.aa-btn--danger:hover { background: #912018; border-color: #912018; color: #fff; }
+.aa-btn--danger:hover {
+  background: var(--vb-color-danger-hover);
+  border-color: var(--vb-color-danger-hover);
+  color: #fff;
+}
 
 .aa-notice { align-items: center; }
 .aa-notice:has(.aa-notice-text) { align-items: flex-start; }
-.aa-notice--error { background: #fef3f2; border-color: #fecdca; color: #b42318; }
+.aa-notice--error {
+  background: color-mix(in srgb, var(--vb-color-danger) 8%, var(--aa-surface));
+  border-color: color-mix(in srgb, var(--vb-color-danger) 30%, var(--aa-surface));
+  color: var(--aa-danger);
+}
 
 @media (max-width: 640px) {
   .aa-card-row { padding: 16px; }
