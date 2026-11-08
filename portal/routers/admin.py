@@ -170,9 +170,12 @@ from portal.team import revoke_invite_link as revoke_team_invite_link
 from portal.transcription import ALLOWED_MODELS, ProviderConfig, ProviderEnum, get_api_key
 from portal.transcription.worker import start_transcription_worker, stop_transcription_worker
 from portal.translations.constants import TRANSLATION_MODELS, TranslationProviderEnum
+from portal.translations.glossary_suggestions import translation_service as glossary_translation_service
+from portal.translations.source_material import format_size
 from portal.translations.vocabulary import (
     VocabularyOverlapIndex,
     VocabularyScopeError,
+    new_vocabulary_entry,
     parse_vocabulary_csv,
     serialize_vocabulary_csv,
     validate_vocabulary_scope,
@@ -1458,6 +1461,7 @@ async def admin_room_detail(request: Request, event_id: int, room_id: int):
                 .order_by(AIVocabularyEntry.priority.desc(), AIVocabularyEntry.source_term)
             )
         )
+    glossary_service = glossary_translation_service(event, room)
     booth_statuses = []
     for b in db_booths:
         bid = make_booth_id(event.slug, b.room_id, b.language_code)
@@ -1502,6 +1506,9 @@ async def admin_room_detail(request: Request, event_id: int, room_id: int):
             "vocabulary_imported": request.query_params.get("vocab_imported"),
             "vocabulary_warnings": request.query_params.get("vocab_warnings"),
             "vocabulary_languages": request.query_params.get("vocab_languages"),
+            "glossary_source_max_bytes": settings.glossary_source_max_bytes,
+            "glossary_source_max_size": format_size(settings.glossary_source_max_bytes),
+            "glossary_translation_service": glossary_service.label if glossary_service else None,
             "memberships": memberships,
             **admin_flags,
         },
@@ -1746,19 +1753,7 @@ async def admin_upload_ai_vocabulary(request: Request, event_id: int, room_id: i
                 continue
             accepted.add(entry)
             languages.add(entry.target_language)
-            session.add(
-                AIVocabularyEntry(
-                    event_id=event_id,
-                    room_id=room_id,
-                    source_term=entry.source_term,
-                    target_language=entry.target_language,
-                    target_term=entry.target_term,
-                    description=entry.description,
-                    case_sensitive=entry.case_sensitive,
-                    match_type=entry.match_type,
-                    priority=entry.priority,
-                )
-            )
+            session.add(new_vocabulary_entry(entry, event_id=event_id, room_id=room_id))
             imported += 1
         await session.flush()
 

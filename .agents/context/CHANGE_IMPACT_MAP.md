@@ -176,8 +176,11 @@ Session secrets from the browser sender never authorize RTMPS. Tests: `tests/tes
 3. `portal/translations/vocabulary.py` — glossary lookup, overlap resolution, priority ordering, and CSV import/export
 4. `portal/translations/worker.py` — translation dispatch and glossary resolution before taking worker slots
 5. `portal/routers/admin.py` — room AI interpretation settings & vocabulary CSV routes (`.../ai-vocabulary/upload`, `.../export`, `.../delete`)
+   and `portal/routers/glossary_suggestions.py` — glossary suggestions from a talk script or slides (`.../ai-vocabulary/suggestions`, `.../suggestions/save`, #1172), backed by
+   `portal/translations/source_material.py` (file checks, PDF text via pypdf), `term_extraction.py` + `common_words.py` (deterministic candidates)
+   and `glossary_suggestions.py` (review rows, optional one-off LLM translations, accepted-row validation); UI in `portal/static/js/glossary-suggestions.js`
 6. `portal/templates/admin/room_detail.html` — AI interpretation persona, style, and glossary management UI
-7. `tests/test_ai_interpretation.py` & `tests/test_translation_pipeline.py` — regression tests
+7. `tests/test_ai_interpretation.py` & `tests/test_translation_pipeline.py` — regression tests; `tests/test_glossary_suggestions.py` and `tests/test_glossary_suggestions.mjs` for suggestions
 
 ---
 

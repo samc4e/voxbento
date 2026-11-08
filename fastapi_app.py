@@ -28,6 +28,7 @@ from portal.routers.api_v1 import router as api_v1_router
 from portal.routers.auth import router as auth_router
 from portal.routers.demo import router as demo_router
 from portal.routers.developer import router as developer_router
+from portal.routers.glossary_suggestions import router as glossary_suggestions_router
 from portal.routers.interpreter import router as interpreter_router
 from portal.routers.listener import router as listener_router
 from portal.routers.meeting_source import router as meeting_source_router
@@ -328,6 +329,7 @@ app.include_router(api_v1_router)
 app.include_router(admin_router)
 app.include_router(program_ingest_router)
 app.include_router(meeting_source_router)
+app.include_router(glossary_suggestions_router)
 
 app.include_router(demo_router)
 

@@ -115,6 +115,8 @@ with `?error=invalid_role&role=…` and the page explains why.
 | POST | `/admin/events/{event_id}/rooms/{room_id}/ai-vocabulary/upload` | — | Upload CSV glossary entries for room AI interpretation |
 | GET | `/admin/events/{event_id}/rooms/{room_id}/ai-vocabulary/export` | — | Export room AI interpretation glossary as CSV |
 | POST | `/admin/events/{event_id}/rooms/{room_id}/ai-vocabulary/delete` | — | Delete specific entry or clear all room glossary entries |
+| POST | `/admin/events/{event_id}/rooms/{room_id}/ai-vocabulary/suggestions` | — | Owner-only, same origin. Raw-body upload of a .txt/.md/.pdf talk script (name in `X-Source-Filename`, size cap `GLOSSARY_SOURCE_MAX_BYTES`); returns suggested glossary rows as JSON, `?translate=1` adds one-off LLM translations. Saves nothing (#1172) |
+| POST | `/admin/events/{event_id}/rooms/{room_id}/ai-vocabulary/suggestions/save` | — | Owner-only, same origin. JSON accepted rows; validated with `validate_vocabulary_entry` and the overlap index, saved all-or-nothing as `ai_vocabulary_entries`; 422 lists failing rows |
 | POST | `/admin/events/{event_id}/rooms/{room_id}/delete` | — | Deletes room and dependent data only if room belongs to path event; 404 on missing/mismatched room |
 | GET | `/admin/events/{event_id}/rooms/{room_id}/booths/` | `admin/booth_list.html` | — |
 | POST | `/admin/events/{event_id}/rooms/{room_id}/booths/` | — | Creates DBBooth |

@@ -361,6 +361,48 @@
       <div class="room-save-bar"><button type="submit" class="btn btn-primary">Upload</button></div>
     </form>
 
+    {# Glossary suggestions (#1172). Needs JavaScript, so it stays hidden until the script shows it. #}
+    {% set suggestions_url = management_prefix ~ '/events/' ~ event.id ~ '/rooms/' ~ room.id ~ '/ai-vocabulary/suggestions' %}
+    <section class="glossary-suggest" aria-labelledby="glossary-suggest-heading" data-glossary-suggestions hidden
+             data-suggest-url="{{ suggestions_url }}"
+             data-save-url="{{ suggestions_url }}/save"
+             data-max-bytes="{{ glossary_source_max_bytes }}">
+      <h3 id="glossary-suggest-heading">Suggest terms from a talk</h3>
+      <p class="room-card-sub">Upload the talk's script, abstract or slides. VoxBento lists the names, acronyms and unusual words it finds, and you choose which ones to add. Nothing is added until you save it, and the file isn't kept.</p>
+      <form class="room-upload" data-suggest-form>
+        <div class="field">
+          <label for="glossary_source_file">Script or slides</label>
+          <input type="file" id="glossary_source_file" accept=".txt,.md,.markdown,.pdf,text/plain,text/markdown,application/pdf" required data-suggest-file>
+          <span class="hint">Plain text, Markdown or PDF, up to {{ glossary_source_max_size }}. PDFs need selectable text: scanned pages can't be read.</span>
+        </div>
+        {% if glossary_translation_service %}
+        <label class="rs-toggle glossary-suggest-translate">
+          <span class="rs-toggle-text"><span class="rs-toggle-title">Suggest translations with {{ glossary_translation_service }}</span>
+            <span class="hint">Sends only the terms it finds, not the file, using your API key.</span>
+          </span>
+          <input type="checkbox" class="rs-switch" role="switch" checked data-suggest-translate>
+        </label>
+        {% else %}
+        <p class="hint">To get suggested translations too, add a translation API key on <a href="{{ management_prefix }}/events/{{ event.id }}/api-settings/">API keys</a>.</p>
+        {% endif %}
+        <div class="room-save-bar"><button type="submit" class="btn btn-primary" data-suggest-submit>Find terms</button></div>
+      </form>
+      <p class="glossary-suggest-status" role="status" aria-live="polite" hidden data-suggest-status></p>
+      <div class="glossary-suggest-review" hidden data-suggest-review>
+        <div class="ai-vocabulary-table-wrap">
+          <table class="data-table glossary-suggest-table" aria-label="Suggested glossary terms">
+            <thead><tr data-suggest-head></tr></thead>
+            <tbody data-suggest-rows></tbody>
+          </table>
+        </div>
+        <div class="glossary-suggest-actions">
+          <button type="button" class="btn btn-primary" disabled data-suggest-save>Add accepted terms</button>
+          <button type="button" class="btn btn-outline" data-suggest-accept-all>Accept all</button>
+          <button type="button" class="btn btn-outline" data-suggest-discard>Discard suggestions</button>
+        </div>
+      </div>
+    </section>
+
     {% if vocabulary_entries %}
       <div class="ai-vocabulary-table-wrap">
         <table class="data-table ai-vocabulary-table">
@@ -503,4 +545,5 @@
 
 
 <script type="module" src="{{ url_for('static', path='js/room-detail.js') }}?v={{ asset_version }}"></script>
+<script type="module" src="{{ url_for('static', path='js/glossary-suggestions.js') }}?v={{ asset_version }}"></script>
 {% endblock %}

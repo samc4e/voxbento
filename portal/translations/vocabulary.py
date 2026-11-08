@@ -162,6 +162,24 @@ def validate_vocabulary_entry(row: dict[str, str], row_number: int) -> Vocabular
         raise VocabularyRowError(f"Row {row_number}: {exc}") from exc
 
 
+def new_vocabulary_entry(
+    entry: VocabularyEntryInput, *, event_id: int, room_id: int | None = None, booth_id: int | None = None
+) -> AIVocabularyEntry:
+    """The stored row for a validated entry (CSV import and accepted suggestions share it)."""
+    return AIVocabularyEntry(
+        event_id=event_id,
+        room_id=room_id,
+        booth_id=booth_id,
+        source_term=entry.source_term,
+        target_language=entry.target_language,
+        target_term=entry.target_term,
+        description=entry.description,
+        case_sensitive=entry.case_sensitive,
+        match_type=entry.match_type,
+        priority=entry.priority,
+    )
+
+
 def parse_vocabulary_csv(file_content: str) -> tuple[list[VocabularyEntryInput], list[str]]:
     reader = csv.DictReader(io.StringIO(file_content.lstrip("\ufeff")))
     headers = set(reader.fieldnames or ())

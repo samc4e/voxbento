@@ -60,6 +60,17 @@ Pull Request,de,Pull Request,Developer term in German,false,phrase,80
 
 Exporting downloads the normalized glossary in the identical CSV schema. Formula characters (`=`, `+`, `-`, `@`) at the start of text cells are neutralized during export to protect against spreadsheet injection.
 
+### Suggesting Terms from a Talk's Script or Slides
+
+Instead of writing the CSV by hand, an event owner can upload the material a talk is prepared from (an abstract, a script, speaker notes or the slides) under **Suggest terms from a talk** in the same **Glossary** card, and review the terms VoxBento finds.
+
+- **Files**: plain text (`.txt`), Markdown (`.md`) or PDF, up to 10 MB by default (operators can change this with `GLOSSARY_SOURCE_MAX_BYTES`). PDFs are read for their text only, so slides need selectable text; scanned pages are images and are not read (there is no OCR). Save PowerPoint or Keynote decks as PDF first.
+- **What is suggested**: acronyms (`NLLB`, `WHIP`), mixed-case product names (`VoxBento`, `WebRTC`), capitalised names and phrases (`Linus Torvalds`, `Open Source Summit`) and, for English talks, uncommon words the text repeats. Everyday words, slide headings and terms already in the room's glossary are left out. This step needs no API key.
+- **Suggested translations**: if the event has an API key for a translation service (OpenAI, Anthropic, Google Gemini, Groq or OpenRouter), VoxBento can ask it once for a translation of each term into each of the room's AI languages. Only the terms are sent, never the file. This happens while you prepare the glossary, never during the live session, and if the service fails the terms are still listed with empty translations.
+- **Review**: each row shows the term, a translation per language, how often the term appears and **Accept** / **Reject** buttons. Edit any term or translation before accepting it; **Keep as is** copies the term into the empty translations, which suits names and acronyms. Acronyms are saved as exact, case-sensitive matches so that `US` doesn't match `us`.
+- **Saving**: **Add accepted terms** saves only the accepted rows, and only the translations you filled in. They go through the same checks as a CSV upload (required fields, length limits, formula characters, language codes and duplicates). If any accepted row fails, nothing is saved and the failing rows are marked so you can fix or reject them. Saved terms are ordinary glossary entries: they appear in the list below and in the CSV export.
+- **Privacy**: the uploaded file is read in memory, never stored or logged, and discarded as soon as the suggestions are made. Nothing is added to the glossary until you accept and save it.
+
 ## Prompt Bounding & Latency Optimization
 
 To prevent token bloating and latency spikes during live simultaneous interpretation, Voxbento does not transmit the complete vocabulary with every segment. For each incoming utterance, the vocabulary resolver:

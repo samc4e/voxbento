@@ -1081,6 +1081,34 @@ code { font-family: var(--font-mono); font-size: 0.85em; background: var(--color
 .ai-vocabulary-table td small { display: block; color: var(--color-text-secondary); margin-top: 3px; }
 .ai-vocabulary-clear { margin-top: 12px; text-align: right; }
 .ai-vocabulary-empty { color: var(--color-text-secondary); margin-top: 16px; }
+/* Glossary suggestions from a talk's script or slides (#1172) */
+.glossary-suggest { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--vb-color-border); }
+.glossary-suggest[hidden], .glossary-suggest [hidden] { display: none; }
+.glossary-suggest h3 { margin: 0 0 4px; font-size: 1rem; }
+.glossary-suggest-translate { margin: 12px 0 0; }
+.glossary-suggest-status { margin: 0 0 12px; padding: 10px 14px; border-radius: var(--vb-radius-sm); border: 1px solid var(--vb-color-border); background: var(--vb-color-surface-2); color: var(--vb-color-text-secondary); font-size: 0.9rem; }
+.glossary-suggest-status[data-tone="error"] { color: var(--vb-color-danger-text); border-color: color-mix(in srgb, var(--vb-color-danger) 35%, transparent); background: color-mix(in srgb, var(--vb-color-danger) 6%, var(--vb-color-surface)); }
+.glossary-suggest-status[data-tone="warning"] { color: var(--vb-color-warning-text); border-color: color-mix(in srgb, var(--vb-color-warning) 40%, transparent); background: color-mix(in srgb, var(--vb-color-warning) 8%, var(--vb-color-surface)); }
+.glossary-suggest-status[data-tone="success"] { color: var(--vb-color-success-text); border-color: color-mix(in srgb, var(--vb-color-success) 35%, transparent); background: color-mix(in srgb, var(--vb-color-success) 6%, var(--vb-color-surface)); }
+.glossary-suggest-table { min-width: 640px; }
+.glossary-suggest-table td { vertical-align: top; }
+/* Same look as .field inputs, a little more compact for table rows. */
+.glossary-suggest-table input[type="text"] { width: 100%; min-width: 120px; box-sizing: border-box; min-height: 36px; padding: 7px 10px; font: inherit; font-size: 0.9rem; color: var(--vb-color-text); background: var(--vb-color-surface); border: 1px solid var(--vb-color-border-strong); border-radius: var(--vb-radius-sm); }
+.glossary-suggest-table input[type="text"]:focus { outline: none; border-color: var(--vb-color-primary); box-shadow: 0 0 0 3px var(--vb-color-primary-subtle); }
+.glossary-suggest-table input[type="text"]:disabled { background: var(--vb-color-surface-2); }
+.glossary-suggest-table tr.is-accepted { background: color-mix(in srgb, var(--vb-color-success) 7%, transparent); }
+.glossary-suggest-table tr.is-rejected { opacity: 0.55; }
+.glossary-suggest-table tr.is-rejected input[type="text"] { text-decoration: line-through; }
+.glossary-suggest-number, .glossary-suggest-found { color: var(--vb-color-muted); white-space: nowrap; }
+.glossary-suggest-term { min-width: 180px; }
+.glossary-suggest-kind { display: block; margin-top: 4px; color: var(--vb-color-muted); font-size: 0.75rem; }
+.glossary-suggest-keep { margin-top: 6px; }
+.glossary-suggest-in-glossary { color: var(--vb-color-muted); font-size: 0.85rem; }
+.glossary-suggest-decision { display: flex; gap: 6px; }
+.glossary-suggest-decision [data-action="accept"][aria-pressed="true"] { background: var(--vb-color-success); border-color: var(--vb-color-success); color: var(--vb-color-surface); }
+.glossary-suggest-decision [data-action="reject"][aria-pressed="true"] { background: var(--vb-color-danger); border-color: var(--vb-color-danger); color: var(--vb-color-surface); }
+.glossary-suggest-errors { margin: 6px 0 0; padding-left: 18px; color: var(--vb-color-danger-text); font-size: 0.8rem; }
+.glossary-suggest-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
 
 /* ── Mini list (added items in wizard) ───────────────────────────────────── */
 .mini-list { list-style: none; display: flex; flex-direction: column; gap: 8px; margin: 8px 0 0; padding: 0; }

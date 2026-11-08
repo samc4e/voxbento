@@ -166,6 +166,8 @@ class Settings(BaseSettings):
     max_webhook_subscriptions: int = 50
     # Caption WebSocket Settings
     max_anonymous_caption_listeners_per_booth: int = 500
+    # Largest talk script or slide deck accepted for glossary suggestions (#1172), in bytes.
+    glossary_source_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1024, le=100 * 1024 * 1024)
 
     @field_validator("public_base_url")
     @classmethod
