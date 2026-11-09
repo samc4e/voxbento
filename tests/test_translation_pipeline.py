@@ -7,6 +7,7 @@ import pytest
 
 from portal.database import get_session
 from portal.models import AIVocabularyEntry, DBBooth, Event, Room, RoomTranslationLanguage, TranscriptSegment
+from portal.translations.engine import TranslationEngine, TranslationLanguage
 from portal.translations.worker import TranslationWorker
 
 
@@ -485,3 +486,48 @@ async def test_download_status_failure_preserves_inference_timeout(db_data, mock
     assert all(call.args[7] == "Bonjour" and call.args[8] is None for call in bundle.call_args_list)
     assert "PermissionError" in caplog.text
     assert "private model path" not in caplog.text
+
+
+@pytest.mark.anyio
+async def test_local_translation_reaches_the_engine_through_the_worker(db_data, mock_broadcast):
+    """With `_call_llm` left real, a segment reaches the local engine through `translate_batch`."""
+
+    class RecordingEngine(TranslationEngine):
+        def __init__(self):
+            self.calls = []
+
+        async def translate_batch(self, source_lang, targets, texts, context):
+            self.calls.append((source_lang, list(targets), list(texts), context.model))
+            return [[f"{target.name} translation" for target in targets] for _ in texts]
+
+    engine = RecordingEngine()
+    worker = TranslationWorker(mock_broadcast)
+
+    with (
+        patch.dict("portal.translations.worker.ENGINES", {"local": engine}),
+        patch("portal.tts.worker.synthesize", new_callable=AsyncMock, return_value=b"audio"),
+        patch("portal.websockets.manager.tts_manager.has_listeners", return_value=True),
+        patch("portal.websockets.manager.TTSConnectionManager.broadcast_bundle", new_callable=AsyncMock) as bundle,
+        patch("portal.translations.worker.asyncio.wait_for", wraps=asyncio.wait_for) as wait_for,
+    ):
+        await worker.handle_translation(
+            room_id=db_data["room"].id,
+            segment_id=db_data["segment"].id,
+            text="Hello world",
+            booth_id_str="floor",
+            uuid_segment_id="engine-uuid",
+            seq=1,
+        )
+
+    english = TranslationLanguage(code="en", name="English")
+    # One call per target language, as before; the source language is never sent to the engine.
+    assert sorted(engine.calls, key=lambda call: call[1][0].code) == [
+        (english, [TranslationLanguage(code="es", name="Spanish")], ["Hello world"], "test"),
+        (english, [TranslationLanguage(code="fr", name="French")], ["Hello world"], "test"),
+    ]
+    # Local inference keeps its 60 s budget.
+    assert [call.kwargs["timeout"] for call in wait_for.call_args_list].count(60.0) == 2
+    for lang_code, translation in (("es", "Spanish translation"), ("fr", "French translation")):
+        lang_bundles = [call for call in bundle.call_args_list if call.args[1] == lang_code]
+        assert [call.args[7] for call in lang_bundles] == [translation, translation]
+        assert all(call.args[8] is None for call in lang_bundles)

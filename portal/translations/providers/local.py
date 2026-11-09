@@ -17,7 +17,8 @@ if TYPE_CHECKING:
 from huggingface_hub.utils import LocalEntryNotFoundError
 from tqdm.auto import tqdm
 
-from portal.translations.constants import NLLB_LANGUAGE_MAP
+from portal.translations.constants import NLLB_LANGUAGE_MAP, TranslationProviderEnum
+from portal.translations.engine import TranslationContext, TranslationEngine, TranslationLanguage
 from portal.translations.providers.base import TranslationProvider
 
 logger = logging.getLogger(__name__)
@@ -221,12 +222,40 @@ def start_eviction_loop():
             pass
 
 
-class LocalProvider(TranslationProvider):
+class LocalProvider(TranslationProvider, TranslationEngine):
     #: Set once the operator has been told the interpretation settings do not apply here.
     _warned_unsupported_settings = False
 
     def __init__(self):
         start_eviction_loop()
+
+    async def translate_batch(
+        self,
+        source_lang: TranslationLanguage,
+        targets: Sequence[TranslationLanguage],
+        texts: Sequence[str],
+        context: TranslationContext,
+    ) -> list[list[str | None]]:
+        """Run each (text, target) pair through :meth:`translate`, one after another."""
+        results: list[list[str | None]] = []
+        for text in texts:
+            row: list[str | None] = []
+            for target in targets:
+                translated = await self.translate(
+                    provider_name=TranslationProviderEnum.LOCAL.value,
+                    text=text,
+                    target_lang_name=target.name,
+                    target_lang_code=target.code,
+                    source_lang_name=source_lang.name,
+                    model=context.model,
+                    api_key=context.api_key,
+                    persona=context.persona,
+                    style=context.style,
+                    vocabulary_entries=context.vocabulary_entries,
+                )
+                row.append(translated)
+            results.append(row)
+        return results
 
     async def translate(
         self,
